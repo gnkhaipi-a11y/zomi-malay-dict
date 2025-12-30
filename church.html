@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zom">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pyidawtha Baptist Church</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --gold: #D4AF37; --dark: #1a1a1a; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--white); margin: 0; padding-bottom: 70px; }
+        
+        /* Header & Drawer Style */
+        .header { background: linear-gradient(135deg, #b8860b, #d4af37); padding: 25px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .header img { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--white); }
+        .header h1 { margin: 10px 0 5px; font-size: 20px; color: var(--dark); text-transform: uppercase; }
+
+        /* Search Box */
+        .search-container { padding: 15px; position: sticky; top: 0; background: var(--dark); z-index: 100; }
+        .search-box { width: 100%; padding: 12px 40px; border-radius: 25px; border: 2px solid var(--gold); background: #222; color: white; outline: none; box-sizing: border-box; }
+        .search-icon { position: absolute; left: 30px; top: 27px; color: var(--gold); }
+
+        /* Content Sections */
+        .section { display: none; padding: 15px; animation: fadeIn 0.5s; }
+        .section.active { display: block; }
+
+        /* Member Card */
+        .card { background: #2c2c2c; border-radius: 12px; padding: 15px; margin-bottom: 12px; border-left: 4px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
+        .card h3 { margin: 0; color: var(--gold); font-size: 18px; }
+        .card p { margin: 3px 0; font-size: 14px; color: #bbb; }
+        .call-btn { background: var(--gold); color: var(--dark); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; }
+
+        /* Navigation Bottom */
+        .nav-bottom { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; border-top: 1px solid var(--gold); }
+        .nav-item { flex: 1; text-align: center; padding: 12px; color: #888; cursor: pointer; font-size: 12px; }
+        .nav-item.active { color: var(--gold); }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .info-box { background: #222; padding: 20px; border-radius: 10px; border: 1px solid #333; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <i class="fas fa-church" style="font-size: 50px; color: var(--dark);"></i>
+    <h1>Pyidawtha Baptist Church</h1>
+    <p style="color: #444; font-size: 12px; margin: 0;">Khantawn, Malaysia</p>
+</div>
+
+<div id="home" class="section active">
+    <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchInput" class="search-box" placeholder="Zong in (Min/Nu/Pa)..." oninput="searchMember()">
+    </div>
+    <div id="memberList">
+        </div>
+</div>
+
+<div id="church" class="section">
+    <div class="info-box">
+        <h2 style="color:var(--gold)">Church Tangthu</h2>
+        <p>Pyidawtha khua pen 1957 kumin kiphuh hi. Pawlpi pen i biak Pasian mapaina tawh tuni ciang kalsuan hi.</p>
+        <hr style="border: 0.5px solid #444">
+        <h3 style="color:var(--gold)">Pastor-te List</h3>
+        <ul id="pastorList" style="list-style:none; padding:0;">
+            </ul>
+    </div>
+</div>
+
+<div id="app" class="section">
+    <div class="info-box" style="text-align: center;">
+        <h2 style="color:var(--gold)">App Detail</h2>
+        <p>Hih App pen Pyidawtha Baptist Church mipi-te kizopna nadingin kiphuh ahi hi.</p>
+        <p><b>Admin:</b> Gin Cin Khai</p>
+        <p><b>Developer:</b> Gemini AI & GNK</p>
+        <p>Version 1.0 (2024)</p>
+    </div>
+</div>
+
+<div class="nav-bottom">
+    <div class="nav-item active" onclick="showSection('home', this)"><i class="fas fa-users"></i>Members</div>
+    <div class="nav-item" onclick="showSection('church', this)"><i class="fas fa-info-circle"></i>Church Info</div>
+    <div class="nav-item" onclick="showSection('app', this)"><i class="fas fa-cog"></i>App Detail</div>
+</div>
+
+<script>
+    // DATA FROM EXCEL (MASTER DATA)
+    const members = [
+        { name: "Gin Cin Khai", father: "Thang Kap Lian", mother: "Khawl Za Cing", phone: "959265949738" },
+        { name: "Cing Ngaih San", father: "Thang Kap Lian", mother: "Khawl Za Cing", phone: "959265949739" },
+        { name: "Ciang Lawh Nuam", father: "Thang Kap Lian", mother: "Khawl Za Cing", phone: "959265949740" },
+        { name: "Cing Deih Khawm", father: "Thang Kap Lian", mother: "Khawl Za Cing", phone: "959265949741" },
+        { name: "Cing Nuam Kim", father: "Thang Kap Lian", mother: "Khawl Za Cing", phone: "959265949742" }
+    ];
+
+    const pastors = [
+        "Rev. Thang Khua Kai", "Rev. Zam Khan Khual", "Rev. Do Sian Kap", "Rev. Thang Lam Cing", "Rev. Khual Khan Khup"
+    ];
+
+    // Load initial data
+    function loadData() {
+        const list = document.getElementById('memberList');
+        const pList = document.getElementById('pastorList');
+        
+        // Members
+        members.forEach(m => {
+            list.innerHTML += createCard(m);
+        });
+
+        // Pastors
+        pastors.forEach(p => {
+            pList.innerHTML += `<li style="padding:10px 0; border-bottom:1px solid #333"><i class="fas fa-user-tie" style="color:var(--gold); margin-right:10px"></i> ${p}</li>`;
+        });
+    }
+
+    function createCard(m) {
+        return `
+            <div class="card">
+                <div>
+                    <h3>${m.name}</h3>
+                    <p>Pa: ${m.father}</p>
+                    <p>Nu: ${m.mother}</p>
+                </div>
+                <a href="tel:${m.phone}" class="call-btn"><i class="fas fa-phone"></i></a>
+            </div>
+        `;
+    }
+
+    function searchMember() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const list = document.getElementById('memberList');
+        list.innerHTML = '';
+        members.filter(m => 
+            m.name.toLowerCase().includes(query) || 
+            m.father.toLowerCase().includes(query) || 
+            m.mother.toLowerCase().includes(query) ||
+            m.phone.includes(query)
+        ).forEach(m => list.innerHTML += createCard(m));
+    }
+
+    function showSection(id, el) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    window.onload = loadData;
+</script>
+
+</body>
+</html>
